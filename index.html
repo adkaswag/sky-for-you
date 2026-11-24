@@ -1,4 +1,184 @@
-function buildLand() {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A sky for you</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #f4fbff;
+  --edge: rgba(170, 235, 225, .45);
+  color-scheme: dark;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; height: 100%; overflow: hidden; background: #01040f; color: var(--ink); font-family: "Caveat", "Segoe Script", "Bradley Hand", cursive; }
+
+#world { position: fixed; inset: 0; transform: scale(1.04); transition: transform .5s ease-out; transform-origin: 50% 60%; }
+#bg { position: absolute; left: 0; top: 0; }
+#aurora { position: absolute; left: 0; top: 0; width: 100%; height: 100%; filter: blur(2.5px) saturate(1.15); opacity: .95; pointer-events: none; }
+
+#lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#lines line { stroke: rgba(255,230,160,.65); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.3s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+#sky { position: absolute; inset: 0; }
+.star { --c: 215,240,255; position: absolute; width: calc(var(--s) * 2.6); height: calc(var(--s) * 2.6); transform: translate(-50%, -50%); padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: scale .2s; }
+.star.found { --c: 255,214,120; }
+.star:hover, .star:focus-visible { scale: 1.25; outline: none; }
+.star:focus-visible { outline: 2px dashed rgba(255,255,255,.7); outline-offset: -8px; border-radius: 50%; }
+.star::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(var(--c),.6) 0, rgba(var(--c),.18) 28%, rgba(var(--c),0) 62%); animation: glow 3.4s ease-in-out infinite; animation-delay: var(--d); }
+.star::after { content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, transparent 4%, rgba(var(--c),.95) 50%, transparent 96%) center / 100% 2px no-repeat,
+    linear-gradient(0deg, transparent 4%, rgba(var(--c),.95) 50%, transparent 96%) center / 2px 100% no-repeat;
+  animation: glow 3.4s ease-in-out infinite; animation-delay: var(--d); }
+.star i { position: absolute; left: 50%; top: 50%; width: calc(var(--s) * .4); aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle, #fff 35%, rgb(var(--c)) 100%); box-shadow: 0 0 10px 3px rgba(var(--c),.9); z-index: 1; }
+.star.found::before { animation: none; background: radial-gradient(circle, rgba(var(--c),.7) 0, rgba(var(--c),.28) 30%, rgba(var(--c),0) 65%); }
+.star.found::after { animation: none; }
+@keyframes glow { 50% { opacity: .55; transform: scale(.88); } }
+
+#land { position: fixed; left: 0; bottom: 0; pointer-events: none; transform-origin: 50% 100%; transform: scale(1.05); transition: transform .5s ease-out; }
+#glow { position: fixed; left: 0; right: 0; bottom: 0; height: 45%; pointer-events: none; mix-blend-mode: screen; background: radial-gradient(ellipse at 50% 100%, rgba(90,255,180,.22), rgba(90,255,180,0) 65%); animation: breathe 9s ease-in-out infinite; }
+@keyframes breathe { 50% { opacity: .55; } }
+#snow { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+header { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 22px); left: 0; right: 0; text-align: center; pointer-events: none; animation: rise 2s ease-out 1.6s both; }
+h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 700; text-shadow: 0 2px 18px rgba(2,10,30,.8); }
+#count { margin: 2px 0 0; font-size: clamp(1.1rem, 3.5vw, 1.4rem); opacity: .92; text-shadow: 0 1px 10px rgba(2,10,30,.9); }
+@keyframes rise { from { opacity: 0; } }
+
+#fade { position: fixed; inset: 0; background: #01040a; pointer-events: none; animation: fadeout 3.2s ease-in-out forwards; }
+@keyframes fadeout { to { opacity: 0; visibility: hidden; } }
+
+#veil { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(2, 10, 28, .5); }
+#veil.open { display: flex; }
+#card { max-width: 440px; width: 100%; box-sizing: border-box; padding: 22px 28px 24px; text-align: center; background: rgba(10, 40, 62, .6); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid var(--edge); border-radius: 24px; box-shadow: 0 0 50px rgba(110,255,190,.22); animation: pop .3s ease-out; }
+.gl { font-size: 1.6rem; color: #ffd978; text-shadow: 0 0 12px rgba(255,217,120,.8); }
+#msg { margin: 4px 0 18px; font-size: clamp(1.5rem, 5vw, 1.95rem); line-height: 1.3; }
+#close { font: inherit; font-size: 1.3rem; color: var(--ink); background: transparent; border: 1px solid var(--edge); border-radius: 999px; padding: 4px 24px; cursor: pointer; }
+#close:hover, #close:focus-visible { background: rgba(170,240,225,.9); color: #06233a; outline: none; }
+@keyframes pop { from { transform: scale(.88); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .star::before, .star::after, #card, #glow, header, #fade { animation: none; }
+  #fade { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="world">
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <canvas id="aurora" aria-hidden="true"></canvas>
+  <svg id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <main id="sky"></main>
+</div>
+<canvas id="land" aria-hidden="true"></canvas>
+<div id="glow" aria-hidden="true"></div>
+<canvas id="snow" aria-hidden="true"></canvas>
+<header>
+  <h1>A sky for you</h1>
+  <p id="count"></p>
+</header>
+<div id="veil" role="dialog" aria-modal="true" aria-label="Message">
+  <div id="card">
+    <div class="gl" aria-hidden="true">✦</div>
+    <p id="msg"></p>
+    <button id="close" type="button">close</button>
+  </div>
+</div>
+<div id="fade"></div>
+
+<script>
+// EDIT HERE: change each message. x and y are positions (0–100), size is the star size in pixels.
+var STARS = [
+  { x: 11, y: 16, size: 24, msg: "You make me laugh like nobody else." },
+  { x: 30, y: 25, size: 18, msg: "I love the way you say my name." },
+  { x: 60, y: 19, size: 28, msg: "My favorite place is wherever you are." },
+  { x: 86, y: 24, size: 20, msg: "Thank you for always being you." },
+  { x: 21, y: 38, size: 22, msg: "Remember our first date? I was so nervous." },
+  { x: 50, y: 33, size: 32, msg: "You’re my favorite person in the whole world." },
+  { x: 77, y: 40, size: 22, msg: "I can’t wait for all our future adventures." },
+  { x: 91, y: 43, size: 18, msg: "You’re cuter than you think you are." },
+  { x: 36, y: 50, size: 26, msg: "Every day with you is better than the last." },
+  { x: 62, y: 52, size: 18, msg: "You always know how to make me smile." },
+  { x: 74, y: 56, size: 24, msg: "I love you more than all these stars." },
+  { x: 49, y: 57, size: 22, msg: "Last one: you’re the best thing that ever happened to me." }
+];
+
+(function () {
+  function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var bg = document.getElementById("bg"), ctx = bg.getContext("2d");
+  var au = document.getElementById("aurora"), ac = au.getContext("2d");
+  var sn = document.getElementById("snow"), sc = sn.getContext("2d");
+  var W, H, dpr, skyC, stars = [], shoots = [], flakes = [], next = 4, last = 0;
+  var pal = ["#ffffff","#ffffff","#d6ecff","#b4d4ff","#fff0cf"];
+
+  function sprite(stops){
+    var c = document.createElement("canvas"); c.width = 1; c.height = 256;
+    var x = c.getContext("2d"), g = x.createLinearGradient(0,0,0,256);
+    stops.forEach(function(s){ g.addColorStop(s[0], s[1]); });
+    x.fillStyle = g; x.fillRect(0,0,1,256); return c;
+  }
+  // Three aurora curtains: green, teal with violet top, green with pink top
+  var LAY = [
+    { spr: sprite([[0,"rgba(60,255,160,0)"],[.45,"rgba(40,230,150,.2)"],[.8,"rgba(70,255,150,.7)"],[.95,"rgba(190,255,200,.95)"],[1,"rgba(120,255,170,0)"]]), y:.46, len:.38, f:1,   s:1,   p:.5, a:.85 },
+    { spr: sprite([[0,"rgba(150,80,255,0)"],[.35,"rgba(140,80,240,.24)"],[.65,"rgba(60,200,230,.45)"],[.93,"rgba(90,255,200,.8)"],[1,"rgba(90,255,200,0)"]]), y:.52, len:.3, f:1.4, s:.8,  p:2.3, a:.8 },
+    { spr: sprite([[0,"rgba(255,80,200,0)"],[.4,"rgba(240,80,190,.26)"],[.75,"rgba(110,255,170,.5)"],[.95,"rgba(200,255,210,.7)"],[1,"rgba(200,255,210,0)"]]), y:.38, len:.3, f:.7,  s:1.2, p:4.1, a:.7 }
+  ];
+
+  function drawAurora(t) {
+    var w = au.width, h = au.height, L, x;
+    ac.clearRect(0,0,w,h); ac.globalCompositeOperation = "lighter";
+    for (L=0; L<LAY.length; L++) {
+      var P = LAY[L];
+      for (x=0; x<w; x++) {
+        var base = h*P.y + Math.sin(x*.007*P.f + t*.12*P.s + P.p)*h*.09 + Math.sin(x*.019 + t*.2*P.s + P.p*2)*h*.035;
+        var len = h*P.len*(.7 + .3*Math.sin(x*.011 + t*.17 + P.p) + .15*Math.sin(x*.05 - t*.3));
+        var ray = .3 + .55*(.5 + .5*Math.sin(x*.55 + Math.sin(x*.09 + t*.4)*4 + t*.8)) + .15*(.5 + .5*Math.sin(x*1.7 + t));
+        var env = .5 + .5*Math.sin(x*.0075*P.f + P.p*1.7 + t*.05); env = Math.pow(env,.8)*.9 + .1;
+        ac.globalAlpha = Math.min(1, ray*env*P.a*(.85 + .15*Math.sin(t*.7 + P.p + x*.02)));
+        ac.drawImage(P.spr, 0,0,1,256, x, base-len, 1, len);
+      }
+    }
+    ac.globalAlpha = 1; ac.globalCompositeOperation = "source-over";
+  }
+
+  function build() {
+    W = innerWidth; H = innerHeight; dpr = Math.min(devicePixelRatio || 1, 2);
+    var R = mb(7), i, g;
+    bg.width = W*dpr; bg.height = H*dpr; bg.style.width = W+"px"; bg.style.height = H+"px";
+    au.width = Math.ceil(W/3); au.height = Math.ceil(H/3);
+    sn.width = W; sn.height = H;
+
+    skyC = document.createElement("canvas"); skyC.width = W*dpr; skyC.height = H*dpr;
+    var c = skyC.getContext("2d"); c.scale(dpr,dpr);
+    g = c.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,"#01040f"); g.addColorStop(.45,"#041230"); g.addColorStop(.75,"#08294a"); g.addColorStop(1,"#13485e");
+    c.fillStyle = g; c.fillRect(0,0,W,H);
+    c.save(); c.translate(W*.5, H*.95); c.scale(1.8,1);
+    g = c.createRadialGradient(0,0,0,0,0,H*.5);
+    g.addColorStop(0,"rgba(80,230,180,.3)"); g.addColorStop(1,"rgba(80,230,180,0)");
+    c.fillStyle = g; c.fillRect(-W,-H,W*2,H*1.2); c.restore();
+    // faint star haze
+    c.globalCompositeOperation = "lighter";
+    for (i=0;i<1800;i++){ c.fillStyle = "rgba(255,255,255,"+(.08+R()*.35)+")"; c.fillRect(R()*W, R()*H*.8, .9, .9); }
+
+    stars = []; var n = Math.max(280, Math.min(750, W*H/2600));
+    for (i=0;i<n;i++){
+      var y = R()*H*.88;
+      stars.push({ x:R()*W, y:y, r:.3+Math.pow(R(),5)*1.9, a:.35+R()*.6, s:.6+R()*2.2, p:R()*6.28, c:pal[(R()*pal.length)|0], f:1-Math.max(0,(y/H-.6))*2.4 });
+    }
+    flakes = []; var m = Math.min(170, Math.round(W/9));
+    for (i=0;i<m;i++) flakes.push({ x:R()*W, y:R()*H, r:.8+R()*1.8, v:18+R()*35, a:.4+R()*.5, p:R()*6, sw:8+R()*20 });
+    buildLand();
+  }
+
+  function buildLand() {
     var ld = document.getElementById("land"), lc = ld.getContext("2d"), LH = Math.round(H * 0.52);
     ld.width = W * dpr; ld.height = LH * dpr;
     ld.style.width = W + "px"; ld.style.height = LH + "px";
@@ -301,3 +481,83 @@ function buildLand() {
       }
     }
   }
+
+  function frame(t) {
+    t /= 1000; var dt = Math.min(.1, t-last); last = t;
+    ctx.setTransform(1,0,0,1,0,0); ctx.drawImage(skyC,0,0);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    var i;
+    for (i=0;i<stars.length;i++){
+      var s = stars[i], a = s.a*s.f*(reduce ? 1 : (.7+.3*Math.sin(t*s.s+s.p)));
+      ctx.globalAlpha = a; ctx.fillStyle = s.c; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill();
+      if (s.r>1.2){ ctx.globalAlpha = a*.18; ctx.beginPath(); ctx.arc(s.x,s.y,s.r*4,0,7); ctx.fill(); }
+    }
+    if (!reduce) {
+      if (t > next) {
+        var d = Math.random()<.5 ? 1 : -1;
+        shoots.push({ x:W*(.15+Math.random()*.7), y:H*(.04+Math.random()*.3), vx:d*(520+Math.random()*300), vy:260+Math.random()*160, t:0, life:.9+Math.random()*.5 });
+        next = t + 7 + Math.random()*9;
+      }
+      for (var j=shoots.length-1;j>=0;j--){
+        var m = shoots[j]; m.x += m.vx*dt; m.y += m.vy*dt; m.t += dt;
+        if (m.t > m.life) { shoots.splice(j,1); continue; }
+        var tx = m.x-m.vx*.18, ty = m.y-m.vy*.18, gr = ctx.createLinearGradient(m.x,m.y,tx,ty);
+        gr.addColorStop(0,"rgba(255,255,255,1)"); gr.addColorStop(1,"rgba(255,255,255,0)");
+        ctx.globalAlpha = Math.sin(Math.PI*m.t/m.life); ctx.strokeStyle = gr; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(m.x,m.y); ctx.lineTo(tx,ty); ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+    drawAurora(reduce ? 40 : t);
+    sc.clearRect(0,0,W,H);
+    for (i=0;i<flakes.length;i++){
+      var f = flakes[i];
+      if (!reduce) { f.y += f.v*dt*(.6+f.r*.4); if (f.y > H+5) { f.y = -5; f.x = Math.random()*W; } }
+      sc.fillStyle = "rgba(255,255,255,"+f.a+")"; sc.beginPath(); sc.arc(f.x + (reduce ? 0 : Math.sin(t*.6+f.p)*f.sw), f.y, f.r, 0, 7); sc.fill();
+    }
+    if (!reduce) requestAnimationFrame(frame);
+  }
+
+  build(); frame(0); if (!reduce) requestAnimationFrame(frame);
+  var rt; addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(function(){ build(); if (reduce) frame(0); }, 200); });
+
+  if (!reduce) addEventListener("pointermove", function(e){
+    var x = e.clientX/innerWidth-.5, y = e.clientY/innerHeight-.5;
+    document.getElementById("world").style.transform = "translate("+(-x*16)+"px,"+(-y*10)+"px) scale(1.04)";
+    document.getElementById("land").style.transform = "translate("+(x*24)+"px,0) scale(1.05)";
+  });
+
+  // Stars you can tap
+  var sky = document.getElementById("sky"), lines = document.getElementById("lines"), veil = document.getElementById("veil");
+  var msg = document.getElementById("msg"), countEl = document.getElementById("count"), found = 0, lastStar = null, prev = null;
+  function updateCount(){ countEl.textContent = found===STARS.length ? "You found every star ♥" : "Tap the stars: "+found+" of "+STARS.length+" found"; }
+  STARS.forEach(function (s, i) {
+    var b = document.createElement("button");
+    b.className = "star"; b.type = "button"; b.setAttribute("aria-label", "Star "+(i+1));
+    b.style.left = s.x+"%"; b.style.top = s.y+"%";
+    b.style.setProperty("--s", s.size+"px"); b.style.setProperty("--d", (i*.37)+"s");
+    b.innerHTML = "<i></i>";
+    b.addEventListener("click", function () {
+      msg.textContent = s.msg; veil.classList.add("open"); lastStar = b;
+      if (!b.classList.contains("found")) {
+        b.classList.add("found"); found++; updateCount();
+        if (prev) {
+          var ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+          ln.setAttribute("x1",prev.x); ln.setAttribute("y1",prev.y); ln.setAttribute("x2",s.x); ln.setAttribute("y2",s.y); ln.setAttribute("pathLength","1");
+          lines.appendChild(ln);
+        }
+        prev = s;
+      }
+      document.getElementById("close").focus();
+    });
+    sky.appendChild(b);
+  });
+  function closeCard(){ veil.classList.remove("open"); if (lastStar) lastStar.focus(); }
+  document.getElementById("close").addEventListener("click", closeCard);
+  veil.addEventListener("click", function(e){ if (e.target===veil) closeCard(); });
+  document.addEventListener("keydown", function(e){ if (e.key==="Escape") closeCard(); });
+  updateCount();
+})();
+</script>
+</body>
+</html>
