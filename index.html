@@ -4,8 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>A sky for you</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Plus+Jakarta+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --ink: #f4fbff;
@@ -16,7 +15,7 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
-body { margin: 0; height: 100%; overflow: hidden; background: #01040f; color: var(--ink); font-family: "Caveat", "Segoe Script", "Bradley Hand", cursive; }
+body { margin: 0; height: 100%; overflow: hidden; background: #01040f; color: var(--ink); font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif; }
 
 #world { position: fixed; inset: 0; transform: scale(1.04); transition: transform .5s ease-out; transform-origin: 50% 60%; }
 #bg { position: absolute; left: 0; top: 0; }
@@ -49,8 +48,8 @@ body { margin: 0; height: 100%; overflow: hidden; background: #01040f; color: va
 #snow { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
 header { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 22px); left: 0; right: 0; text-align: center; pointer-events: none; animation: rise 2s ease-out 1.6s both; }
-h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 700; text-shadow: 0 2px 18px rgba(2,10,30,.8); }
-#count { margin: 2px 0 0; font-size: clamp(1.1rem, 3.5vw, 1.4rem); opacity: .92; text-shadow: 0 1px 10px rgba(2,10,30,.9); }
+h1 { margin: 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(2.2rem, 7vw, 3.6rem); font-weight: 600; letter-spacing: .02em; text-shadow: 0 2px 18px rgba(2,10,30,.8); }
+#count { margin: 4px 0 0; font-size: clamp(.9rem, 2.8vw, 1.05rem); font-weight: 400; letter-spacing: .04em; opacity: .88; text-shadow: 0 1px 10px rgba(2,10,30,.9); }
 @keyframes rise { from { opacity: 0; } }
 
 #fade { position: fixed; inset: 0; background: #01040a; pointer-events: none; animation: fadeout 3.2s ease-in-out forwards; }
@@ -58,38 +57,31 @@ h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 700; text-shad
 
 #veil { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(2, 10, 28, .5); }
 #veil.open { display: flex; }
-#card { max-width: 440px; width: 100%; box-sizing: border-box; padding: 22px 28px 24px; text-align: center; background: rgba(10, 40, 62, .6); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid var(--edge); border-radius: 24px; box-shadow: 0 0 50px rgba(110,255,190,.22); animation: pop .3s ease-out; }
-.gl { font-size: 1.6rem; color: #ffd978; text-shadow: 0 0 12px rgba(255,217,120,.8); }
-#msg { margin: 4px 0 18px; font-size: clamp(1.5rem, 5vw, 1.95rem); line-height: 1.3; }
-#close { font: inherit; font-size: 1.3rem; color: var(--ink); background: transparent; border: 1px solid var(--edge); border-radius: 999px; padding: 4px 24px; cursor: pointer; }
+#card { max-width: 440px; width: 100%; box-sizing: border-box; padding: 26px 32px 28px; text-align: center; background: rgba(10, 40, 62, .6); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid var(--edge); border-radius: 24px; box-shadow: 0 0 50px rgba(110,255,190,.22); animation: pop .3s ease-out; }
+.gl { font-size: 1.4rem; color: #ffd978; text-shadow: 0 0 12px rgba(255,217,120,.8); }
+#msg { margin: 8px 0 22px; font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-size: clamp(1.5rem, 4.8vw, 1.9rem); font-weight: 500; line-height: 1.38; }
+#close { font: inherit; font-size: .95rem; font-weight: 500; letter-spacing: .04em; color: var(--ink); background: transparent; border: 1px solid var(--edge); border-radius: 999px; padding: 7px 26px; cursor: pointer; }
 #close:hover, #close:focus-visible { background: rgba(170,240,225,.9); color: #06233a; outline: none; }
 @keyframes pop { from { transform: scale(.88); opacity: 0; } }
 </style>
 </head>
 <body>
-<!-- Sky & Aurora Layer -->
 <div id="world">
   <canvas id="bg" aria-hidden="true"></canvas>
   <canvas id="aurora" aria-hidden="true"></canvas>
   <svg id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
   <main id="sky"></main>
 </div>
-
-<!-- Static Ridges + Animated Cabin, Smoke & Wind-Swaying Pines -->
 <div id="landWrap" aria-hidden="true">
   <canvas id="land"></canvas>
   <canvas id="landDyn"></canvas>
 </div>
 <div id="glow" aria-hidden="true"></div>
 <canvas id="snow" aria-hidden="true"></canvas>
-
-<!-- Title & Discovery Counter -->
 <header>
   <h1>A sky for you</h1>
   <p id="count"></p>
 </header>
-
-<!-- Glassmorphic Star Message Modal -->
 <div id="veil" role="dialog" aria-modal="true" aria-label="Message">
   <div id="card">
     <div class="gl" aria-hidden="true">✦</div>
@@ -97,29 +89,26 @@ h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 700; text-shad
     <button id="close" type="button">close</button>
   </div>
 </div>
-
-<!-- Initial Fade-In Veil -->
 <div id="fade"></div>
 
 <script>
-// EDIT HERE: change each message. x and y are positions (0–100), size is the star size in pixels.
+// EDIT HERE: change each message. x and y are positions (0–100) arranged in an organic constellation heart.
 var STARS = [
-  { x: 11, y: 16, size: 24, msg: "Е, сега имаме още едно общо небе." },
-  { x: 30, y: 25, size: 18, msg: "Ще подължаваме ли това състезание за по-готин easter egg, защото не е лесно, предлагам да спрем." },
-  { x: 60, y: 19, size: 28, msg: "Колко случайности са нужни, за да се създаде една история?" },
-  { x: 86, y: 24, size: 20, msg: "И кво? И на двамата ни е приятно 6.73,5/10 лошоооооо." },
-  { x: 21, y: 38, size: 22, msg: "Приемаш ли гости за Тибет и Непал? На мен ми е мечта да стигна до някое непалско село с раница на гърба ми и да чуя и видя дали всички истории за хората там са верни." },
-  { x: 50, y: 33, size: 32, msg: "." },
-  { x: 77, y: 40, size: 22, msg: "I can’t wait for all our future adventures." },
-  { x: 91, y: 43, size: 18, msg: "You’re cuter than you think you are." },
-  { x: 36, y: 50, size: 26, msg: "Every day with you is better than the last." },
-  { x: 62, y: 52, size: 18, msg: "You always know how to make me smile." },
-  { x: 74, y: 56, size: 24, msg: "I love you more than all these stars." },
-  { x: 49, y: 57, size: 22, msg: "Last one: you’re the best thing that ever happened to me." }
+  { x: 49, y: 29, size: 22, msg: "Out of all the billions of people in the world, my favorite is you." },
+  { x: 39, y: 20, size: 28, msg: "You turn ordinary moments into my favorite memories." },
+  { x: 25, y: 23, size: 19, msg: "No matter how cold the night gets, thinking of you feels like home." },
+  { x: 18, y: 34, size: 25, msg: "Your laugh is honestly my favorite sound in the universe." },
+  { x: 24, y: 46, size: 20, msg: "I still get butterflies every single time I see your name pop up." },
+  { x: 37, y: 55, size: 30, msg: "If I could give you one thing, it would be the ability to see yourself through my eyes." },
+  { x: 51, y: 63, size: 26, msg: "Even on my busiest days, you’re the best part of them." },
+  { x: 64, y: 53, size: 21, msg: "Thank you for being my safe place, my best friend, and my favorite person." },
+  { x: 76, y: 44, size: 29, msg: "Every little thing about you makes me fall a little harder." },
+  { x: 81, y: 32, size: 18, msg: "I’d choose you in every lifetime, under every sky." },
+  { x: 72, y: 21, size: 24, msg: "You shine brighter than this entire northern sky." },
+  { x: 58, y: 22, size: 20, msg: "You connected all the stars—just like you brought all the light into my life ♥" }
 ];
 
 (function () {
-  // Deterministic PRNG (Mulberry32) for consistent mountain ridges, trees, and stars
   function mb(a) {
     return function () {
       a |= 0;
@@ -137,11 +126,10 @@ var STARS = [
   var ldd = document.getElementById("landDyn"), ldc = ldd.getContext("2d");
   var landWrap = document.getElementById("landWrap");
 
-  var W, H, LH, dpr, skyC, stars = [], shoots = [], flakes = [], next = 4, last = null;
+  var W, H, LH, dpr, skyC, stars = [], shoots = [], flakes = [], next = 4, last = 0;
   var nearTrees = [], smokePuffs = [], smokeTimer = 0, cabinInfo = null;
   var pal = ["#ffffff", "#ffffff", "#d6ecff", "#b4d4ff", "#fff0cf"];
 
-  // Creates a vertical gradient strip used to stamp aurora rays quickly
   function sprite(stops) {
     var c = document.createElement("canvas");
     c.width = 1;
@@ -153,14 +141,13 @@ var STARS = [
     return c;
   }
 
-  // Three lively aurora curtains with stronger wave amplitude & drift
+  // Three lively aurora curtains
   var LAY = [
     { spr: sprite([[0, "rgba(60,255,160,0)"], [.42, "rgba(40,235,155,.24)"], [.78, "rgba(75,255,155,.76)"], [.94, "rgba(195,255,205,.98)"], [1, "rgba(120,255,170,0)"]]), y: .45, len: .41, f: 1.05, s: 1.8, p: .5, a: .9 },
     { spr: sprite([[0, "rgba(155,85,255,0)"], [.32, "rgba(145,85,245,.28)"], [.64, "rgba(65,210,235,.5)"], [.92, "rgba(95,255,205,.86)"], [1, "rgba(95,255,205,0)"]]), y: .51, len: .33, f: 1.45, s: 1.5, p: 2.3, a: .85 },
     { spr: sprite([[0, "rgba(255,85,205,0)"], [.38, "rgba(245,85,195,.3)"], [.74, "rgba(115,255,175,.55)"], [.95, "rgba(205,255,215,.76)"], [1, "rgba(205,255,215,0)"]]), y: .37, len: .33, f: .75, s: 2.1, p: 4.1, a: .76 }
   ];
 
-  // Renders shimmering aurora curtains across the sky
   function drawAurora(t) {
     var w = au.width, h = au.height, L, x;
     ac.clearRect(0, 0, w, h);
@@ -186,7 +173,6 @@ var STARS = [
     ac.globalCompositeOperation = "source-over";
   }
 
-  // Draws an organic snow-dusted pine tree with flexible wind sway
   function drawPine(targetCtx, x, y, h, w, darkCol, midCol, snowCol, detail, sway) {
     var tr = mb(Math.floor(x * 13 + h * 7));
     var baseLean = (tr() - 0.5) * w * 0.07;
@@ -250,7 +236,6 @@ var STARS = [
     }
   }
 
-  // Draws the cozy snow-capped cabin with warm flickering window light
   function drawCabin(targetCtx, cx, baseY, scale, glowPulse) {
     var w = 68 * scale;
     var h = 34 * scale;
@@ -260,6 +245,7 @@ var STARS = [
     var right = cx + w * 0.5;
     var wallTop = baseY - h;
 
+    // Warm firelight pool cast onto the snow
     var snowWarm = targetCtx.createRadialGradient(cx - w * 0.1, baseY + 8 * scale, 2, cx - w * 0.05, baseY + 10 * scale, w * 1.25);
     snowWarm.addColorStop(0, "rgba(255, 200, 108, " + (0.38 * glowPulse) + ")");
     snowWarm.addColorStop(0.55, "rgba(255, 175, 85, " + (0.14 * glowPulse) + ")");
@@ -269,11 +255,13 @@ var STARS = [
     targetCtx.ellipse(cx - w * 0.05, baseY + 9 * scale, w * 1.25, 18 * scale, 0, 0, Math.PI * 2);
     targetCtx.fill();
 
+    // Ground shadow
     targetCtx.fillStyle = "rgba(3, 12, 26, 0.48)";
     targetCtx.beginPath();
     targetCtx.ellipse(cx, baseY + 1.5, w * 0.58, 5.5 * scale, 0, 0, Math.PI * 2);
     targetCtx.fill();
 
+    // Chimney
     var chimX = cx + w * 0.25;
     var chimW = 9.5 * scale;
     var chimTop = wallTop - roofPeak * 0.72 - 12 * scale;
@@ -284,6 +272,7 @@ var STARS = [
     targetCtx.fillStyle = "rgba(195, 238, 244, 0.85)";
     targetCtx.fillRect(chimX - chimW * 0.58, chimTop - 2 * scale, chimW * 1.16, 2.2 * scale);
 
+    // Cabin log walls
     targetCtx.fillStyle = "#121f30";
     targetCtx.fillRect(left, wallTop, w, h);
 
@@ -296,6 +285,7 @@ var STARS = [
       targetCtx.stroke();
     }
 
+    // Pitched roof
     targetCtx.fillStyle = "#0a1422";
     targetCtx.beginPath();
     targetCtx.moveTo(left - roofOver, wallTop + 1.5 * scale);
@@ -304,6 +294,7 @@ var STARS = [
     targetCtx.closePath();
     targetCtx.fill();
 
+    // Snow blanket on roof
     targetCtx.fillStyle = "rgba(192, 236, 242, 0.84)";
     targetCtx.beginPath();
     targetCtx.moveTo(left - roofOver - 1.5, wallTop + 1.5 * scale);
@@ -315,6 +306,7 @@ var STARS = [
     targetCtx.closePath();
     targetCtx.fill();
 
+    // Glowing main window
     var winW = 12 * scale;
     var winH = 11 * scale;
     var winX = cx - w * 0.25 - winW * 0.5;
@@ -341,6 +333,7 @@ var STARS = [
     targetCtx.lineTo(winX + winW, winY + winH * 0.5);
     targetCtx.stroke();
 
+    // Gable window
     var attR = 3.2 * scale;
     var attY = wallTop - roofPeak * 0.42;
     targetCtx.fillStyle = "#ffcf6e";
@@ -348,6 +341,7 @@ var STARS = [
     targetCtx.arc(cx, attY, attR, 0, Math.PI * 2);
     targetCtx.fill();
 
+    // Wooden door
     var doorW = 10.5 * scale;
     var doorH = 19 * scale;
     var doorX = cx + w * 0.13;
@@ -364,7 +358,6 @@ var STARS = [
     };
   }
 
-  // Initializes sky backdrop, background stars, snowflakes, and terrain layers
   function build() {
     W = innerWidth;
     H = innerHeight;
@@ -433,11 +426,9 @@ var STARS = [
     for (i = 0; i < m; i++) {
       flakes.push({ x: R() * W, y: R() * H, r: .8 + R() * 1.8, v: 20 + R() * 36, a: .4 + R() * .5, p: R() * 6, sw: 10 + R() * 24 });
     }
-
     buildLand();
   }
 
-  // Builds the layered snowy ridges, distant/midground trees, cabin anchor, and foreground swaying pines
   function buildLand() {
     LH = Math.round(H * 0.52);
     landWrap.style.width = W + "px";
@@ -501,7 +492,6 @@ var STARS = [
       lc.fillRect(0, yCenter - height * 0.5, W, height);
     }
 
-    // 1. Distant misty ridge & treeline
     var far = ridge(LH * 0.39, LH * 0.055, 11);
     fillRidge(far, "#153654", "#0c2238", "rgba(130, 225, 210, 0.22)");
     for (var x = -10; x < W + 10; x += 5 + R() * 6) {
@@ -510,7 +500,6 @@ var STARS = [
     }
     mistBand(LH * 0.49, LH * 0.22, "rgba(75, 195, 190, 0.14)");
 
-    // 2. Midground ridge & forest
     var mid = ridge(LH * 0.55, LH * 0.045, 23);
     fillRidge(mid, "#0b2036", "#061322", "rgba(110, 215, 200, 0.16)");
     for (var x2 = -15; x2 < W + 15; x2 += 8 + R() * 11) {
@@ -519,7 +508,6 @@ var STARS = [
     }
     mistBand(LH * 0.65, LH * 0.2, "rgba(55, 165, 175, 0.12)");
 
-    // 3. Foreground snow terrain with layered drifts & aurora bounce light
     var gndBack = ridge(LH * 0.69, LH * 0.028, 37);
     fillRidge(gndBack, "#5aa6ad", "#183e5e", "rgba(175, 245, 235, 0.35)");
 
@@ -553,7 +541,6 @@ var STARS = [
       chimTop: cabinY - 34 * cabinScale - 23 * cabinScale * 0.72 - 14 * cabinScale
     };
 
-    // 4. Foreground swaying trees
     nearTrees = [];
     function addNearTree(px, hmin, hmax) {
       var h = LH * (hmin + R() * (hmax - hmin));
@@ -603,75 +590,68 @@ var STARS = [
     }
   }
 
-  // Updates and draws the cabin, rising smoke puffs, and wind-swaying foreground trees
   function drawDynamicLand(t, dt) {
-    try {
-      ldc.clearRect(0, 0, W, LH);
-      if (!cabinInfo) return;
+    ldc.clearRect(0, 0, W, LH);
+    if (!cabinInfo) return;
 
-      var glowPulse = 0.93 + 0.07 * Math.sin(t * 3.1) + 0.03 * Math.cos(t * 7.4);
-      var chim = drawCabin(ldc, cabinInfo.x, cabinInfo.y, cabinInfo.scale, glowPulse);
-      cabinInfo.chimX = chim.chimX;
-      cabinInfo.chimTop = chim.chimTop;
+    var glowPulse = 0.93 + 0.07 * Math.sin(t * 3.1) + 0.03 * Math.cos(t * 7.4);
+    var chim = drawCabin(ldc, cabinInfo.x, cabinInfo.y, cabinInfo.scale, glowPulse);
+    cabinInfo.chimX = chim.chimX;
+    cabinInfo.chimTop = chim.chimTop;
 
-      smokeTimer += dt;
-      if (smokeTimer > 0.32) {
-        smokeTimer = 0;
-        smokePuffs.push({
-          x: cabinInfo.chimX + (Math.random() - 0.5) * 2 * cabinInfo.scale,
-          y: cabinInfo.chimTop,
-          r: (2.8 + Math.random() * 1.4) * cabinInfo.scale,
-          vx: (7 + Math.random() * 4.5) * cabinInfo.scale,
-          vy: -(11.5 + Math.random() * 3.5) * cabinInfo.scale,
-          age: 0,
-          maxAge: 4.8 + Math.random() * 1.4,
-          phase: Math.random() * 6.28
-        });
+    smokeTimer += dt;
+    if (smokeTimer > 0.32) {
+      smokeTimer = 0;
+      smokePuffs.push({
+        x: cabinInfo.chimX + (Math.random() - 0.5) * 2 * cabinInfo.scale,
+        y: cabinInfo.chimTop,
+        r: (2.8 + Math.random() * 1.4) * cabinInfo.scale,
+        vx: (7 + Math.random() * 4.5) * cabinInfo.scale,
+        vy: -(11.5 + Math.random() * 3.5) * cabinInfo.scale,
+        age: 0,
+        maxAge: 4.8 + Math.random() * 1.4,
+        phase: Math.random() * 6.28
+      });
+    }
+
+    for (var s = smokePuffs.length - 1; s >= 0; s--) {
+      var p = smokePuffs[s];
+      p.age += dt;
+      if (p.age >= p.maxAge) {
+        smokePuffs.splice(s, 1);
+        continue;
       }
+      var heightBoost = 1 + (p.age / p.maxAge) * 0.9;
+      p.x += (p.vx * heightBoost + Math.sin(t * 1.6 + p.phase) * 3.5 * cabinInfo.scale) * dt;
+      p.y += p.vy * dt;
+      p.r += 2.3 * cabinInfo.scale * dt;
 
-      for (var s = smokePuffs.length - 1; s >= 0; s--) {
-        var p = smokePuffs[s];
-        p.age += dt;
-        if (p.age >= p.maxAge) {
-          smokePuffs.splice(s, 1);
-          continue;
-        }
-        var heightBoost = 1 + (p.age / p.maxAge) * 0.9;
-        p.x += (p.vx * heightBoost + Math.sin(t * 1.6 + p.phase) * 3.5 * cabinInfo.scale) * dt;
-        p.y += p.vy * dt;
-        p.r += 2.3 * cabinInfo.scale * dt;
-
-        var lifeRatio = p.age / p.maxAge;
-        var alpha = Math.sin(Math.min(1, lifeRatio * 4) * Math.PI * 0.5) * (1 - lifeRatio) * 0.34;
-        if (alpha > 0.005) {
-          var sg = ldc.createRadialGradient(p.x, p.y, p.r * 0.15, p.x, p.y, p.r);
-          sg.addColorStop(0, "rgba(220, 242, 250, " + alpha + ")");
-          sg.addColorStop(0.6, "rgba(195, 228, 242, " + (alpha * 0.5) + ")");
-          sg.addColorStop(1, "rgba(195, 228, 242, 0)");
-          ldc.fillStyle = sg;
-          ldc.beginPath();
-          ldc.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ldc.fill();
-        }
+      var lifeRatio = p.age / p.maxAge;
+      var alpha = Math.sin(Math.min(1, lifeRatio * 4) * Math.PI * 0.5) * (1 - lifeRatio) * 0.34;
+      if (alpha > 0.005) {
+        var sg = ldc.createRadialGradient(p.x, p.y, p.r * 0.15, p.x, p.y, p.r);
+        sg.addColorStop(0, "rgba(220, 242, 250, " + alpha + ")");
+        sg.addColorStop(0.6, "rgba(195, 228, 242, " + (alpha * 0.5) + ")");
+        sg.addColorStop(1, "rgba(195, 228, 242, 0)");
+        ldc.fillStyle = sg;
+        ldc.beginPath();
+        ldc.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ldc.fill();
       }
+    }
 
-      var windGust = 0.55 + 0.45 * Math.sin(t * 0.65);
-      for (var i = 0; i < nearTrees.length; i++) {
-        var tr = nearTrees[i];
-        var sway = Math.sin(t * tr.freq + tr.phase + tr.x * 0.006) * tr.amp * (0.45 + 0.75 * windGust)
-          + tr.amp * 0.35 * windGust;
-        drawPine(ldc, tr.x, tr.y, tr.h, tr.w, "#020912", "#061526", "rgba(155, 215, 228, 0.62)", true, sway);
-      }
-    } catch (err) {
-      ldc.clearRect(0, 0, W, LH);
+    var windGust = 0.55 + 0.45 * Math.sin(t * 0.65);
+    for (var i = 0; i < nearTrees.length; i++) {
+      var tr = nearTrees[i];
+      var sway = Math.sin(t * tr.freq + tr.phase + tr.x * 0.006) * tr.amp * (0.45 + 0.75 * windGust)
+        + tr.amp * 0.35 * windGust;
+      drawPine(ldc, tr.x, tr.y, tr.h, tr.w, "#020912", "#061526", "rgba(155, 215, 228, 0.62)", true, sway);
     }
   }
 
-  // Main animation loop for stars, shooting stars, aurora, cabin/smoke/trees, and snow
   function frame(now) {
     var t = now / 1000;
-    if (last === null) last = t;
-    var dt = Math.min(.1, Math.max(0, t - last));
+    var dt = last ? Math.min(.1, Math.max(0, t - last)) : 0.016;
     last = t;
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -696,9 +676,17 @@ var STARS = [
 
     if (t > next) {
       var d = Math.random() < .5 ? 1 : -1;
-      shoots.push({ x: W * (.15 + Math.random() * .7), y: H * (.04 + Math.random() * .3), vx: d * (520 + Math.random() * 300), vy: 260 + Math.random() * 160, t: 0, life: .9 + Math.random() * .5 });
+      shoots.push({
+        x: W * (.15 + Math.random() * .7),
+        y: H * (.04 + Math.random() * .3),
+        vx: d * (520 + Math.random() * 300),
+        vy: 260 + Math.random() * 160,
+        t: 0,
+        life: .9 + Math.random() * .5
+      });
       next = t + 7 + Math.random() * 9;
     }
+
     for (var j = shoots.length - 1; j >= 0; j--) {
       var m = shoots[j];
       m.x += m.vx * dt;
@@ -708,7 +696,8 @@ var STARS = [
         shoots.splice(j, 1);
         continue;
       }
-      var tx = m.x - m.vx * .18, ty = m.y - m.vy * .18, gr = ctx.createLinearGradient(m.x, m.y, tx, ty);
+      var tx = m.x - m.vx * .18, ty = m.y - m.vy * .18;
+      var gr = ctx.createLinearGradient(m.x, m.y, tx, ty);
       gr.addColorStop(0, "rgba(255,255,255,1)");
       gr.addColorStop(1, "rgba(255,255,255,0)");
       ctx.globalAlpha = Math.sin(Math.PI * m.t / m.life);
@@ -759,12 +748,30 @@ var STARS = [
     landWrap.style.transform = "translate(" + (x * 24) + "px,0) scale(1.05)";
   });
 
-  // Interactive constellation stars & message modal
+  // Stars you can tap — connects adjacent neighbors around the heart loop as discovered
   var sky = document.getElementById("sky"), lines = document.getElementById("lines"), veil = document.getElementById("veil");
-  var msg = document.getElementById("msg"), countEl = document.getElementById("count"), found = 0, lastStar = null, prev = null;
+  var msg = document.getElementById("msg"), countEl = document.getElementById("count");
+  var found = 0, lastStar = null;
+  var discovered = new Array(STARS.length).fill(false);
+  var drawnEdges = {};
+
+  function addSegment(i, j) {
+    var key = i < j ? i + "-" + j : j + "-" + i;
+    if (drawnEdges[key]) return;
+    drawnEdges[key] = true;
+    var ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ln.setAttribute("x1", STARS[i].x);
+    ln.setAttribute("y1", STARS[i].y);
+    ln.setAttribute("x2", STARS[j].x);
+    ln.setAttribute("y2", STARS[j].y);
+    ln.setAttribute("pathLength", "1");
+    lines.appendChild(ln);
+  }
 
   function updateCount() {
-    countEl.textContent = found === STARS.length ? "You found every star ♥" : "Tap the stars: " + found + " of " + STARS.length + " found";
+    countEl.textContent = found === STARS.length
+      ? "You found every star ♥"
+      : "Tap the stars: " + found + " of " + STARS.length + " found";
   }
 
   STARS.forEach(function (s, i) {
@@ -781,20 +788,16 @@ var STARS = [
       msg.textContent = s.msg;
       veil.classList.add("open");
       lastStar = b;
-      if (!b.classList.contains("found")) {
+      if (!discovered[i]) {
+        discovered[i] = true;
         b.classList.add("found");
         found++;
         updateCount();
-        if (prev) {
-          var ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
-          ln.setAttribute("x1", prev.x);
-          ln.setAttribute("y1", prev.y);
-          ln.setAttribute("x2", s.x);
-          ln.setAttribute("y2", s.y);
-          ln.setAttribute("pathLength", "1");
-          lines.appendChild(ln);
-        }
-        prev = s;
+
+        var prevIdx = (i - 1 + STARS.length) % STARS.length;
+        var nextIdx = (i + 1) % STARS.length;
+        if (discovered[prevIdx]) addSegment(prevIdx, i);
+        if (discovered[nextIdx]) addSegment(i, nextIdx);
       }
       document.getElementById("close").focus();
     });
