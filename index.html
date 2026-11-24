@@ -1,0 +1,303 @@
+function buildLand() {
+    var ld = document.getElementById("land"), lc = ld.getContext("2d"), LH = Math.round(H * 0.52);
+    ld.width = W * dpr; ld.height = LH * dpr;
+    ld.style.width = W + "px"; ld.style.height = LH + "px";
+    lc.scale(dpr, dpr);
+
+    var R = mb(29);
+
+    function ridge(base, amp, seed) {
+      var rr = mb(seed), p1 = rr() * 6.28, p2 = rr() * 6.28, p3 = rr() * 6.28, p4 = rr() * 6.28;
+      return function (x) {
+        return base
+          + Math.sin(x / (W * 0.24) + p1) * amp
+          + Math.sin(x / (W * 0.09) + p2) * amp * 0.45
+          + Math.sin(x / (W * 0.035) + p3) * amp * 0.18
+          + Math.cos(x / (W * 0.015) + p4) * amp * 0.06;
+      };
+    }
+
+    function fillRidge(ry, topCol, botCol, rimCol) {
+      var g = lc.createLinearGradient(0, LH * 0.25, 0, LH);
+      g.addColorStop(0, topCol);
+      g.addColorStop(1, botCol);
+      lc.fillStyle = g;
+      lc.beginPath();
+      lc.moveTo(-10, LH);
+      for (var x = -10; x <= W + 10; x += 4) lc.lineTo(x, ry(x));
+      lc.lineTo(W + 10, LH);
+      lc.closePath();
+      lc.fill();
+
+      if (rimCol) {
+        lc.strokeStyle = rimCol;
+        lc.lineWidth = 1.4;
+        lc.beginPath();
+        for (var x2 = -10; x2 <= W + 10; x2 += 4) {
+          if (x2 === -10) lc.moveTo(x2, ry(x2));
+          else lc.lineTo(x2, ry(x2));
+        }
+        lc.stroke();
+      }
+    }
+
+    function drawPine(x, y, h, w, darkCol, midCol, snowCol, detail) {
+      var tr = mb(Math.floor(x * 13 + h * 7));
+      var lean = (tr() - 0.5) * w * 0.08;
+      var tiers = detail ? Math.max(7, Math.round(h / 13)) : Math.max(5, Math.round(h / 16));
+
+      lc.fillStyle = darkCol;
+      lc.beginPath();
+      lc.moveTo(x - w * 0.045, y + 3);
+      lc.lineTo(x - w * 0.015 + lean * 0.7, y - h * 0.85);
+      lc.lineTo(x + w * 0.015 + lean * 0.7, y - h * 0.85);
+      lc.lineTo(x + w * 0.045, y + 3);
+      lc.closePath();
+      lc.fill();
+
+      for (var i = 0; i < tiers; i++) {
+        var t = i / (tiers - 1);
+        var tipY = y - h + t * h * 0.76;
+        var drop = h * (0.14 + (1 - t) * 0.04) * (0.88 + tr() * 0.24);
+        var botY = tipY + drop;
+        var cx = x + lean * (1 - t);
+
+        var profile = Math.pow(t, 0.78) * (1 - Math.pow(Math.max(0, t - 0.82) / 0.18, 2) * 0.14);
+        var halfW = w * 0.5 * (0.14 + 0.86 * profile) * (0.85 + tr() * 0.3);
+        var lW = halfW * (0.86 + tr() * 0.28);
+        var rW = halfW * (0.86 + tr() * 0.28);
+
+        lc.fillStyle = i % 2 === 0 ? darkCol : midCol;
+        lc.beginPath();
+        lc.moveTo(cx, tipY);
+        lc.quadraticCurveTo(cx + rW * 0.45, tipY + drop * 0.48, cx + rW, botY + drop * 0.08);
+        lc.lineTo(cx + rW * 0.62, botY - drop * 0.08);
+        lc.lineTo(cx + rW * 0.32, botY + drop * 0.05);
+        lc.lineTo(cx, botY - drop * 0.12);
+        lc.lineTo(cx - lW * 0.32, botY + drop * 0.05);
+        lc.lineTo(cx - lW * 0.62, botY - drop * 0.08);
+        lc.lineTo(cx - lW, botY + drop * 0.08);
+        lc.quadraticCurveTo(cx - lW * 0.45, tipY + drop * 0.48, cx, tipY);
+        lc.closePath();
+        lc.fill();
+
+        if (snowCol && (detail || i % 2 === 0)) {
+          var sFrac = 0.45 + tr() * 0.25;
+          var sBot = tipY + drop * sFrac;
+          lc.fillStyle = snowCol;
+          lc.beginPath();
+          lc.moveTo(cx, tipY);
+          lc.quadraticCurveTo(cx + rW * 0.35, tipY + drop * sFrac * 0.45, cx + rW * 0.72, sBot);
+          lc.lineTo(cx + rW * 0.44, sBot - drop * 0.09);
+          lc.lineTo(cx + rW * 0.18, sBot + drop * 0.04);
+          lc.lineTo(cx, sBot - drop * 0.08);
+          lc.lineTo(cx - lW * 0.18, sBot + drop * 0.04);
+          lc.lineTo(cx - lW * 0.44, sBot - drop * 0.09);
+          lc.lineTo(cx - lW * 0.72, sBot);
+          lc.quadraticCurveTo(cx - lW * 0.35, tipY + drop * sFrac * 0.45, cx, tipY);
+          lc.closePath();
+          lc.fill();
+        }
+      }
+    }
+
+    function drawCabin(cx, baseY, scale) {
+      var w = 44 * scale;
+      var h = 22 * scale;
+      var roofPeak = 15 * scale;
+      var roofOver = 5 * scale;
+      var left = cx - w * 0.5;
+      var right = cx + w * 0.5;
+      var wallTop = baseY - h;
+
+      // Warm light cast onto snow in front of the cabin
+      var snowWarm = lc.createRadialGradient(cx, baseY + 6 * scale, 2, cx, baseY + 8 * scale, w * 1.15);
+      snowWarm.addColorStop(0, "rgba(255, 198, 105, 0.34)");
+      snowWarm.addColorStop(0.55, "rgba(255, 175, 85, 0.11)");
+      snowWarm.addColorStop(1, "rgba(255, 175, 85, 0)");
+      lc.fillStyle = snowWarm;
+      lc.beginPath();
+      lc.ellipse(cx, baseY + 6 * scale, w * 1.15, 14 * scale, 0, 0, Math.PI * 2);
+      lc.fill();
+
+      // Ground shadow under cabin
+      lc.fillStyle = "rgba(3, 12, 26, 0.45)";
+      lc.beginPath();
+      lc.ellipse(cx, baseY + 1, w * 0.58, 4 * scale, 0, 0, Math.PI * 2);
+      lc.fill();
+
+      // Chimney & soft smoke wisp
+      var chimX = cx + w * 0.24;
+      var chimTop = wallTop - roofPeak * 0.75 - 8 * scale;
+      lc.fillStyle = "#162436";
+      lc.fillRect(chimX - 3.5 * scale, chimTop, 7 * scale, (wallTop - chimTop) + 4 * scale);
+
+      var smoke = lc.createLinearGradient(chimX, chimTop, chimX + 18 * scale, chimTop - 26 * scale);
+      smoke.addColorStop(0, "rgba(215, 240, 248, 0.24)");
+      smoke.addColorStop(1, "rgba(215, 240, 248, 0)");
+      lc.strokeStyle = smoke;
+      lc.lineWidth = 3 * scale;
+      lc.lineCap = "round";
+      lc.beginPath();
+      lc.moveTo(chimX, chimTop - 2 * scale);
+      lc.bezierCurveTo(
+        chimX + 6 * scale, chimTop - 10 * scale,
+        chimX + 2 * scale, chimTop - 16 * scale,
+        chimX + 14 * scale, chimTop - 25 * scale
+      );
+      lc.stroke();
+
+      // Cabin walls (dark timber)
+      lc.fillStyle = "#121e2e";
+      lc.fillRect(left, wallTop, w, h);
+
+      // Subtle horizontal log lines
+      lc.strokeStyle = "rgba(255, 235, 200, 0.07)";
+      lc.lineWidth = 1;
+      for (var ly = wallTop + 4 * scale; ly < baseY; ly += 4 * scale) {
+        lc.beginPath();
+        lc.moveTo(left + 1, ly);
+        lc.lineTo(right - 1, ly);
+        lc.stroke();
+      }
+
+      // Pitched roof body
+      lc.fillStyle = "#0b1524";
+      lc.beginPath();
+      lc.moveTo(left - roofOver, wallTop + 1 * scale);
+      lc.lineTo(cx, wallTop - roofPeak);
+      lc.lineTo(right + roofOver, wallTop + 1 * scale);
+      lc.closePath();
+      lc.fill();
+
+      // Snow blanket on roof
+      lc.fillStyle = "rgba(185, 230, 236, 0.78)";
+      lc.beginPath();
+      lc.moveTo(left - roofOver - 1, wallTop + 1 * scale);
+      lc.quadraticCurveTo(cx - w * 0.24, wallTop - roofPeak * 0.62, cx, wallTop - roofPeak - 1);
+      lc.quadraticCurveTo(cx + w * 0.24, wallTop - roofPeak * 0.62, right + roofOver + 1, wallTop + 1 * scale);
+      lc.lineTo(right + roofOver - 1, wallTop - 2.5 * scale);
+      lc.quadraticCurveTo(cx + w * 0.2, wallTop - roofPeak * 0.78, cx, wallTop - roofPeak - 2.5 * scale);
+      lc.quadraticCurveTo(cx - w * 0.2, wallTop - roofPeak * 0.78, left - roofOver + 1, wallTop - 2.5 * scale);
+      lc.closePath();
+      lc.fill();
+
+      // Glowing amber window
+      var winW = 7.5 * scale;
+      var winH = 7.5 * scale;
+      var winX = cx - w * 0.24 - winW * 0.5;
+      var winY = wallTop + h * 0.34;
+
+      var winHalo = lc.createRadialGradient(winX + winW * 0.5, winY + winH * 0.5, 1, winX + winW * 0.5, winY + winH * 0.5, 22 * scale);
+      winHalo.addColorStop(0, "rgba(255, 214, 115, 0.65)");
+      winHalo.addColorStop(0.5, "rgba(255, 175, 70, 0.2)");
+      winHalo.addColorStop(1, "rgba(255, 175, 70, 0)");
+      lc.fillStyle = winHalo;
+      lc.beginPath();
+      lc.arc(winX + winW * 0.5, winY + winH * 0.5, 22 * scale, 0, Math.PI * 2);
+      lc.fill();
+
+      lc.fillStyle = "#ffcf6e";
+      lc.fillRect(winX, winY, winW, winH);
+
+      // Window muntin crossbars
+      lc.strokeStyle = "#121e2e";
+      lc.lineWidth = Math.max(1, 1.1 * scale);
+      lc.beginPath();
+      lc.moveTo(winX + winW * 0.5, winY);
+      lc.lineTo(winX + winW * 0.5, winY + winH);
+      lc.moveTo(winX, winY + winH * 0.5);
+      lc.lineTo(winX + winW, winY + winH * 0.5);
+      lc.stroke();
+
+      // Small door next to window
+      var doorW = 6.5 * scale;
+      var doorH = 12 * scale;
+      var doorX = cx + w * 0.14;
+      var doorY = baseY - doorH;
+      lc.fillStyle = "#1b2b40";
+      lc.fillRect(doorX, doorY, doorW, doorH);
+    }
+
+    function mistBand(yCenter, height, color) {
+      var mg = lc.createLinearGradient(0, yCenter - height * 0.5, 0, yCenter + height * 0.5);
+      mg.addColorStop(0, "rgba(60, 175, 185, 0)");
+      mg.addColorStop(0.5, color);
+      mg.addColorStop(1, "rgba(10, 35, 60, 0)");
+      lc.fillStyle = mg;
+      lc.fillRect(0, yCenter - height * 0.5, W, height);
+    }
+
+    // 1. Distant misty ridge & treeline
+    var far = ridge(LH * 0.38, LH * 0.055, 11);
+    fillRidge(far, "#153654", "#0c2238", "rgba(130, 225, 210, 0.22)");
+    for (var x = -10; x < W + 10; x += 4 + R() * 6) {
+      var fh = LH * (0.07 + R() * 0.07);
+      drawPine(x, far(x) + 4, fh, fh * (0.36 + R() * 0.12), "#0e2842", "#12314f", "rgba(145, 210, 225, 0.22)", false);
+    }
+    mistBand(LH * 0.48, LH * 0.22, "rgba(75, 195, 190, 0.14)");
+
+    // 2. Midground ridge & denser forest
+    var mid = ridge(LH * 0.54, LH * 0.045, 23);
+    fillRidge(mid, "#0b2036", "#061322", "rgba(110, 215, 200, 0.16)");
+    for (var x2 = -15; x2 < W + 15; x2 += 7 + R() * 11) {
+      var mh = LH * (0.14 + R() * 0.13);
+      drawPine(x2, mid(x2) + 5, mh, mh * (0.38 + R() * 0.14), "#07182b", "#0b223b", "rgba(135, 205, 220, 0.34)", false);
+    }
+    mistBand(LH * 0.64, LH * 0.2, "rgba(55, 165, 175, 0.12)");
+
+    // 3. Foreground snow terrain with layered drifts & aurora bounce light
+    var gndBack = ridge(LH * 0.69, LH * 0.028, 37);
+    fillRidge(gndBack, "#5aa6ad", "#183e5e", "rgba(175, 245, 235, 0.35)");
+
+    var gndFront = ridge(LH * 0.75, LH * 0.022, 53);
+    fillRidge(gndFront, "#7ec4c2", "#133252", "rgba(210, 255, 245, 0.45)");
+
+    // Subtle aurora reflection pool in the center clearing
+    var refl = lc.createRadialGradient(W * 0.5, LH * 0.84, 10, W * 0.5, LH * 0.84, W * 0.42);
+    refl.addColorStop(0, "rgba(110, 255, 195, 0.22)");
+    refl.addColorStop(0.55, "rgba(80, 210, 195, 0.08)");
+    refl.addColorStop(1, "rgba(80, 210, 195, 0)");
+    lc.fillStyle = refl;
+    lc.fillRect(0, LH * 0.68, W, LH * 0.32);
+
+    // Snow sparkles across foreground drifts
+    for (var i = 0; i < 320; i++) {
+      var sx = R() * W;
+      var sy = Math.max(gndFront(sx) + 3, LH * (0.74 + R() * 0.25));
+      if (sy < LH) {
+        lc.fillStyle = "rgba(235, 255, 252, " + (0.18 + R() * 0.55) + ")";
+        lc.fillRect(sx, sy, 1.3, 1.3);
+      }
+    }
+
+    // Cabin nestled slightly off-center in the clearing
+    var cabinX = W * 0.56;
+    var cabinY = Math.max(gndBack(cabinX), gndFront(cabinX)) + LH * 0.04;
+    var cabinScale = Math.max(0.75, Math.min(1.25, W / 1100));
+    drawCabin(cabinX, cabinY, cabinScale);
+
+    // 4. Foreground trees (framed taller on left/right edges, lower saplings in center)
+    function nearTree(px, hmin, hmax) {
+      var h = LH * (hmin + R() * (hmax - hmin));
+      var w = h * (0.4 + R() * 0.14);
+      var base = Math.max(gndBack(px), gndFront(px)) + h * 0.03;
+
+      lc.fillStyle = "rgba(3, 12, 26, 0.38)";
+      lc.beginPath();
+      lc.ellipse(px, base, w * 0.42, h * 0.025, 0, 0, Math.PI * 2);
+      lc.fill();
+
+      drawPine(px, base, h, w, "#020912", "#061526", "rgba(155, 215, 228, 0.62)", true);
+    }
+
+    for (var l = 0; l < 11; l++) nearTree(W * (-0.02 + R() * 0.24), 0.36, 0.68);
+    for (var r = 0; r < 11; r++) nearTree(W * (0.78 + R() * 0.24), 0.36, 0.68);
+    for (var c = 0; c < 7; c++) {
+      var cxTree = W * (0.22 + R() * 0.56);
+      // Keep immediate cabin doorway area clear
+      if (Math.abs(cxTree - cabinX) > 48 * cabinScale) {
+        nearTree(cxTree, 0.15, 0.31);
+      }
+    }
+  }
